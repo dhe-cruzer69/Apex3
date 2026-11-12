@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Reproducible microbenchmark for x4-core primitives.
 
 Measures the two hot paths that every X4 worker touches on each task:
@@ -26,8 +25,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from x4.core.events import EventBus  # noqa: E402
-from x4.core.permissions import Permission  # noqa: E402
+from x4.core.events import EventBus
+from x4.core.permissions import Permission
 
 ITERATIONS = 20_000
 SAMPLES = 7
