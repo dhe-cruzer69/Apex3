@@ -1,3 +1,5 @@
 ruff
 pytest
 mypy
+setuptools
+wheel
