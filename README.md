@@ -2,127 +2,72 @@
 
 **Core runtime and shared infrastructure for the X4 open-source ecosystem.**
 
-Config • Logging • Events • Telemetry • Auth • Permissions • Plugins • Schemas
+Config • Logging • Events • Permissions
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-v0.1-orange)](CHANGELOG.md)
 
-Part of **[ARIEX4Ops / X4](https://github.com/dhe-cruzer69)** — secure AI agents, automation, and developer infrastructure.
-
----
+Part of **CruzX by ARIEX4Ops** — secure AI agents, automation, and developer infrastructure.
 
 ## Why x4-core exists
 
-Higher-level projects (agents, memory, sandbox, MCP) should not re-implement configuration, logging, events, or permission checks. x4-core provides the stable, typed, observable foundation they all share.
+Higher-level projects should share a small, stable set of configuration, logging, event, and permission primitives rather than maintain parallel implementations. Telemetry, authentication, and plugin-registry capabilities shown in broader ecosystem diagrams are not claimed as implemented by this package.
 
 ## Installation
 
-```bash
+~~~bash
 pip install x4-core
-# or for development
 pip install -e ".[dev]"
-```
+~~~
 
-## 60-second example
+## Quickstart
 
-```python
-from x4.core import Config, Logger, EventBus, Permission
+~~~python
+from x4 import Config, EventBus, Logger, Permission
 
-config = Config.load()
-logger = Logger("x4")
+config = Config.load(defaults={"env": "development"},
+                     overrides={"env": "local"})
+logger = Logger("x4", level="INFO")
 events = EventBus()
+policy = Permission()
+policy.grant("agent", "filesystem.read", "./workspace")
 
-logger.info("x4-core started", version="0.1.0")
-events.emit("runtime.ready", {"version": "0.1.0"})
+decision = policy.check("agent", "filesystem.read", "./workspace")
+decision.raise_if_denied()
+logger.info("runtime.ready", environment=config.get("env"))
+events.emit("runtime.ready", {"environment": config.get("env")})
+~~~
 
-allowed = Permission.check(
-    actor="agent",
-    action="filesystem.write",
-    resource="./workspace"
-)
-print("Write allowed:", allowed)
-```
+## Public API and compatibility
+
+Canonical implementations live under x4.core. Existing imports from x4 and historical x4.config, x4.events, x4.logger, and x4.permissions modules remain supported and re-export the same class objects.
+
+Configuration precedence is defaults, then X4_* environment variables, then explicit overrides. Environment values remain strings; parse domain-specific values at their boundary.
+
+Permission is an in-memory grant checker, not an authentication system, persistent policy store, or security boundary. PermissionDecision (also exported as PermissionResult) is an immutable allow/deny result.
+
+## Development and validation
+
+~~~bash
+python -m pip install -e ".[dev]"
+ruff check .
+mypy src
+pytest -q
+python -m build
+~~~
 
 ## Architecture
 
-## APEX Architecture Map
-
-> Status: architecture documentation; implementation and deployment claims require independent verification.
-
-**Evidence note:** This is an architecture map to verify against exported symbols and tests; arrows indicate intended integration boundaries, not proof of shipped functionality.
-
-See [ARCHITECTURE.md](ARCHITECTURE.md).
-
-```
-x4-core
-├── packages/
-│   ├── config/
-│   ├── logger/
-│   ├── errors/
-│   ├── events/
-│   ├── telemetry/
-│   ├── auth/
-│   ├── permissions/
-│   ├── plugins/
-│   └── runtime/
-├── schemas/
-├── adapters/
-├── tests/
-├── examples/
-└── docs/
-```
-
-<!-- X4-APEX-DIAGRAM-START:x4-core -->
-
-```mermaid
-flowchart TB
-    APP[Application] --> API[Shared X4 APIs]
-    API --> CFG[Config]
-    API --> LOG[Structured Logger]
-    API --> EVT[Event Bus]
-    API --> PERM[Permission Checks]
-    API --> TEL[Telemetry]
-    API --> PLUG[Plugin Registry]
-    CFG --> RT[Runtime Package]
-    EVT --> AUD[Consumer Audit Events]
-    PERM -->|authorize or deny| RT
-    RT --> ERR[Typed Errors and Schemas]
-    AGENTS[x4-agents] -. consumes .-> API
-    AI[x4-ai] -. consumes .-> API
-    MEM[x4-memory] -. consumes .-> API
-```
-
-<!-- X4-APEX-DIAGRAM-END:x4-core -->
-
-## Related projects
-
-| Project | Role |
-|---------|------|
-| [x4-agents](https://github.com/dhe-cruzer69/x4-agents) | Flagship secure multi-agent runtime |
-| [x4-ai](https://github.com/dhe-cruzer69/x4-ai) | Provider-agnostic AI layer |
-| [x4-memory](https://github.com/dhe-cruzer69/x4-memory) | Local-first agent memory |
-| [x4-sandbox](https://github.com/dhe-cruzer69/x4-sandbox) | Sandboxed tool execution |
-| [x4-mcp-gateway](https://github.com/dhe-cruzer69/x4-mcp-gateway) | Policy-controlled MCP gateway |
-| [x4-research](https://github.com/dhe-cruzer69/x4-research) | Evidence-first research engine |
+This package is the shared primitive layer. Agent orchestration, memory, sandboxing, MCP, and model providers are consumers; this repository does not claim those systems are implemented here.
 
 ## Security
 
-See [SECURITY.md](SECURITY.md). Report vulnerabilities privately.
+See [SECURITY.md](SECURITY.md). Permission checks are application-level helpers and must not replace OS isolation, authentication, or defense-in-depth controls.
 
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
-## Roadmap
-
-See [ROADMAP.md](ROADMAP.md).
-
 ## License
 
 Apache-2.0 — see [LICENSE](LICENSE).
-
-## Support
-
-If x4-core or the wider X4 ecosystem is useful to you, consider supporting continued development:
-
-**[GitHub Sponsors → dhe-cruzer69](https://github.com/sponsors/dhe-cruzer69)**
