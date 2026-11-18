@@ -50,8 +50,12 @@ def time_call(fn, iterations: int, samples: int) -> float:
 
 # --- subject under test -------------------------------------------------
 
+_permission_policy = Permission()
+_permission_policy.grant("agent:planner", "read", "repo:x4-core")
+
+
 def permission_check() -> None:
-    Permission.check("agent:planner", "read", "repo:x4-core").raise_if_denied()
+    _permission_policy.check("agent:planner", "read", "repo:x4-core").raise_if_denied()
 
 
 _bus = EventBus()
