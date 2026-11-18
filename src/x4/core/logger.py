@@ -5,6 +5,7 @@ import logging
 import sys
 from typing import Any
 
+
 class Logger:
     """Stdlib logging wrapper; keyword fields are rendered into the message."""
     def __init__(self, name: str = "x4", level: str | int = logging.INFO) -> None:

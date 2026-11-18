@@ -5,6 +5,7 @@ import os
 from dataclasses import dataclass, field
 from typing import Any
 
+
 @dataclass
 class Config:
     """Configuration precedence: defaults, X4_* environment, explicit overrides."""
