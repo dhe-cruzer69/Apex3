@@ -52,12 +52,12 @@ def time_call(fn, iterations: int, samples: int) -> float:
 
 _permission_policy = Permission()
 _naive_rules: list[tuple[str, str, str]] = []
-for _index in range(20):
+for _index in range(128):
     _actor = f"agent:{_index}"
     _permission_policy.grant(_actor, "read", "repo:x4-core")
     _naive_rules.append((_actor, "read", "repo:x4-core"))
 
-_BENCH_ACTOR = "agent:19"
+_BENCH_ACTOR = "agent:127"
 _BENCH_ACTION = "read"
 _BENCH_RESOURCE = "repo:x4-core"
 
@@ -139,6 +139,7 @@ def main() -> int:
         "python": platform.python_version(),
         "platform": platform.platform(),
         "processor": platform.processor() or "unknown",
+        "policy_entries": len(_naive_rules),
         "results": results,
         "passed": not failures,
         "failures": failures,
