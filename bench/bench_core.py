@@ -26,7 +26,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from x4.core.events import EventBus
-from x4.core.permissions import Permission
+from x4.core.permissions import Permission, PermissionDecision
 
 ITERATIONS = 20_000
 SAMPLES = 7
@@ -50,8 +50,22 @@ def time_call(fn, iterations: int, samples: int) -> float:
 
 # --- subject under test -------------------------------------------------
 
+_permission_policy = Permission()
+_naive_rules: list[tuple[str, str, str]] = []
+for _index in range(128):
+    _actor = f"agent:{_index}"
+    _permission_policy.grant(_actor, "read", "repo:x4-core")
+    _naive_rules.append((_actor, "read", "repo:x4-core"))
+
+_BENCH_ACTOR = "agent:127"
+_BENCH_ACTION = "read"
+_BENCH_RESOURCE = "repo:x4-core"
+
+
 def permission_check() -> None:
-    Permission.check("agent:planner", "read", "repo:x4-core").raise_if_denied()
+    _permission_policy.check(
+        _BENCH_ACTOR, _BENCH_ACTION, _BENCH_RESOURCE
+    ).raise_if_denied()
 
 
 _bus = EventBus()
@@ -66,10 +80,13 @@ def event_dispatch() -> None:
 # --- naive references ---------------------------------------------------
 
 def naive_permission_check() -> None:
-    actor, action, resource = "agent:planner", "read", "repo:x4-core"
-    decision = {"actor": actor, "action": action, "resource": resource, "allowed": True}
-    if not decision.get("allowed"):
-        raise PermissionError(decision)
+    allowed = any(
+        actor == _BENCH_ACTOR
+        and action == _BENCH_ACTION
+        and resource == _BENCH_RESOURCE
+        for actor, action, resource in _naive_rules
+    )
+    PermissionDecision(allowed, "granted" if allowed else "denied").raise_if_denied()
 
 
 _naive_handlers: list[tuple[str, object]] = [(kind, lambda payload: None) for kind in EVENT_KINDS]
@@ -122,6 +139,7 @@ def main() -> int:
         "python": platform.python_version(),
         "platform": platform.platform(),
         "processor": platform.processor() or "unknown",
+        "policy_entries": len(_naive_rules),
         "results": results,
         "passed": not failures,
         "failures": failures,
