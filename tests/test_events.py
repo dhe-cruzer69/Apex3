@@ -1,7 +1,9 @@
 """Tests for canonical EventBus semantics."""
 import pytest
+
 from x4 import EventBus
 from x4.core import EventBus as CoreEventBus
+
 
 def test_event_bus_emit() -> None:
     bus = EventBus()

@@ -2,6 +2,7 @@
 from x4 import Config
 from x4.core import Config as CoreConfig
 
+
 def test_config_load_defaults() -> None:
     cfg = Config.load({"mode": "test"})
     assert cfg.get("mode") == "test"

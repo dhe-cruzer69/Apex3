@@ -1,7 +1,10 @@
 """Compatibility and smoke tests for the public x4 API."""
 from x4 import Config, EventBus, Logger, Permission
-from x4.core import (Config as CoreConfig, EventBus as CoreEventBus,
-                     Logger as CoreLogger, Permission as CorePermission)
+from x4.core import Config as CoreConfig
+from x4.core import EventBus as CoreEventBus
+from x4.core import Logger as CoreLogger
+from x4.core import Permission as CorePermission
+
 
 def test_import_paths_share_canonical_implementations() -> None:
     assert Config is CoreConfig

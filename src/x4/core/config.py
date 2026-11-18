@@ -1,5 +1,6 @@
 """Typed configuration loading with deterministic precedence."""
 from __future__ import annotations
+
 import os
 from dataclasses import dataclass, field
 from typing import Any
@@ -11,7 +12,7 @@ class Config:
 
     @classmethod
     def load(cls, defaults: dict[str, Any] | None = None,
-             overrides: dict[str, Any] | None = None) -> "Config":
+             overrides: dict[str, Any] | None = None) -> Config:
         cfg: dict[str, Any] = dict(defaults or {})
         for key, value in os.environ.items():
             if key.startswith("X4_"):

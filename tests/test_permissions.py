@@ -1,7 +1,9 @@
 """Tests for canonical permission checker and decision model."""
 import pytest
+
 from x4 import Permission, PermissionDecision, PermissionResult
 from x4.core import Permission as CorePermission
+
 
 def test_permission_allow_and_deny() -> None:
     policy = Permission()

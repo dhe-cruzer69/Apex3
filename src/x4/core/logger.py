@@ -1,5 +1,6 @@
 """Structured logger wrapper with string and integer level support."""
 from __future__ import annotations
+
 import logging
 import sys
 from typing import Any
@@ -27,7 +28,7 @@ class Logger:
             raise TypeError("level must be a logging level name or integer")
         normalized = logging.getLevelName(level.upper())
         if not isinstance(normalized, int):
-            raise ValueError(f"Unknown logging level: {level!r}")
+            raise TypeError(f"Unknown logging level: {level!r}")
         return normalized
 
     @staticmethod
